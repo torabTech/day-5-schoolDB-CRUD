@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 const Student = mongoose.model('Student');
 
-
-getAll = function(req,res){
+const getAll = function(req,res){
     let offset = 0;
     let count = 5;
 
     if(req.query && req.query.offset) offset = parseInt(req.query.offset);
     if(req.query && req.query.count) count = parseInt(req.query.count);
 
-    console.log(`${offset} -- ${count}`)
+    //console.log(`${offset} -- ${count}`)
     
     Student.find()
         .skip(offset)
@@ -24,7 +23,7 @@ getAll = function(req,res){
         });
 }
 
-getOne = function(req,res){
+const getOne = function(req,res){
     const checkID = mongoose.Types.ObjectId.isValid(req.params.id);
     if(!checkID){
         res.status(400).json({message:'invalid ID has been provided'});
@@ -46,7 +45,7 @@ getOne = function(req,res){
 }
 
 
-addOne = function(req,res){
+const addOne = function(req,res){
     if(Object.keys(req.body).length == 0){
         res.status(400).json({message : 'Please provide body data'});
         return;
@@ -55,10 +54,10 @@ addOne = function(req,res){
     const data = {
         name : req.body.name,
         gpa  : req.body.gpa,
-        course : [{
+       /*  course : [{
             name: req.body.course[0].name,
             professor : req.body.course[0].professor
-        }]
+        }] */
     }
 
     Student.create(data , function(err,result){
@@ -67,13 +66,13 @@ addOne = function(req,res){
             return;
         }
 
-        res.status(200).json(result);
+        res.status(201).json(result);
     });
 
 
 }
 
-deleteOne = function(req,res) {
+const deleteOne = function(req,res) {
     const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
     if(!checkSID){
         res.status(400).json({message : 'Invalid ID...'});
@@ -95,7 +94,7 @@ deleteOne = function(req,res) {
     });
 }
 
-updateOne = function(req,res){
+const updateOne = function(req,res){
     const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
 
     if(!checkSID){

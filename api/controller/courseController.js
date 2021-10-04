@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 const Student = mongoose.model('Student');
 
 
-getAll = function(req,res){
+const getAll = function(req,res){
     const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
     if(!checkSID){
         res.status(400).json({message : 'Invalid ID provided'});
         return;
     }
-
+    //we can also filter the number of documents based on certain url queries
     Student.findById(req.params.id).exec(function(err,data){
         if(err){
             res.status(500).json(err.message);
@@ -22,7 +22,7 @@ getAll = function(req,res){
     });
 }
 
-getOne = function(req,res){
+const getOne = function(req,res){
 
     const checkSID = mongoose.Types.ObjectId.isValid(req.params.id); 
     const checkCID = mongoose.Types.ObjectId.isValid(req.params.cid);
@@ -54,7 +54,7 @@ getOne = function(req,res){
 }
 
 
-addOne = function(req,res){
+const addOne = function(req,res){
     const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
 
     if(!checkSID){
@@ -72,8 +72,6 @@ addOne = function(req,res){
             return;
         }
 
-        
-
         data.course.push(req.body);
         data.save(function(saveErr){
             if(saveErr){
@@ -89,7 +87,7 @@ addOne = function(req,res){
 
 }
 
-updateOne = function(req,res){
+const updateOne = function(req,res){
 
     const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
     const checkCID = mongoose.Types.ObjectId.isValid(req.params.cid); 
@@ -125,7 +123,7 @@ updateOne = function(req,res){
 
 }
 
-deleteOne = function(req,res){
+const deleteOne = function(req,res){
     const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
     const checkCID = mongoose.Types.ObjectId.isValid(req.params.cid); 
 

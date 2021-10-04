@@ -1,169 +1,165 @@
-const mongoose = require('mongoose');
-const Student = mongoose.model('Student');
+const mongoose = require("mongoose");
+const Student = mongoose.model("Student");
 
+const getAll = function (req, res) {
+  const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
+  if (!checkSID) {
+    res.status(400).json({ message: "Invalid ID provided" });
+    return;
+  }
+  //we can also filter the number of documents based on certain url queries
+  Student.findById(req.params.id).exec(function (err, data) {
+    if (err) {
+      res.status(500).json(err.message);
+      return;
+    }
+    if (!data) {
+      res.status(404).json({ message: "document not found" });
+      return;
+    }
+    res.status(200).json(data.course);
+  });
+};
 
-const getAll = function(req,res){
-    const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
-    if(!checkSID){
-        res.status(400).json({message : 'Invalid ID provided'});
+const getOne = function (req, res) {
+  const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
+  const checkCID = mongoose.Types.ObjectId.isValid(req.params.cid);
+
+  console.log(checkCID);
+  if (!checkSID || !checkCID) {
+    res.status(400).json({ message: "invalid IDs have been provided" });
+    return;
+  }
+
+  Student.findById(req.params.id).exec(function (err, data) {
+    if (err) {
+      res.status(500).json(err.message);
+      return;
+    }
+
+    if (!data) {
+      res.status(404).json({ message: "Document Not Found!.." });
+      return;
+    }
+
+    const course = data.course.id(req.params.cid);
+
+    if (!course) {
+      res.status(404).json({ message: "Course Not Found!.." });
+      return;
+    }
+    res.status(200).json(course);
+  });
+};
+
+const addOne = function (req, res) {
+  const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
+
+  if (!checkSID) {
+    res.status(400).json({ message: "Invalid ID" });
+    return;
+  }
+  if (Object.keys(req.body).length == 0) {
+    res.status(400).json({ message: "body data not found" });
+    return;
+  }
+
+  Student.findById(req.params.id).exec(function (err, data) {
+    if (err) {
+      res.status(500).json(err.message);
+      return;
+    }
+
+    data.course.push({
+      name: req.body.name,
+      professor: req.body.professor,
+    });
+    data.save(function (saveErr) {
+      if (saveErr) {
+        res.status(500).json(saveErr.message);
         return;
-    }
-    //we can also filter the number of documents based on certain url queries
-    Student.findById(req.params.id).exec(function(err,data){
-        if(err){
-            res.status(500).json(err.message);
-            return;
-        }
-        if(!data){
-            res.status(404).json({message: 'document not found'});
-            return;
-        }
-        res.status(200).json(data.course);
+      }
+
+      res.status(200).json(data);
     });
-}
+  });
+};
 
-const getOne = function(req,res){
+const updateOne = function (req, res) {
+  const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
+  const checkCID = mongoose.Types.ObjectId.isValid(req.params.cid);
 
-    const checkSID = mongoose.Types.ObjectId.isValid(req.params.id); 
-    const checkCID = mongoose.Types.ObjectId.isValid(req.params.cid);
-    
-    console.log(checkCID)
-    if(!checkSID || !checkCID){
-        res.status(400).json({message:'invalid IDs have been provided'});
+  if (!checkSID || !checkCID) {
+    res.status(400).json({ message: "Invalid IDs" });
+    return;
+  }
+  if (Object.keys(req.body).length == 0) {
+    res.status(400).json({ message: "body data not found" });
+    return;
+  }
+
+  Student.findById(req.params.id).exec(function (err, data) {
+    if (err) {
+      res.status(500).json(err.message);
+      return;
+    }
+
+    const doc = data.course.id(req.params.cid);
+    doc.set({
+      name: req.body.name,
+      professor: req.body.professor,
+    });
+
+    data.save(function (saveErr) {
+      if (saveErr) {
+        res.status(500).json(err.message);
         return;
-    }
+      }
 
-    Student.findById(req.params.id).exec(function(err,data){
-        if(err){
-            res.status(500).json(err.message);
-            return;
-        }
-
-        if(!data){
-            res.status(404).json({message: 'Document Not Found!..'});
-            return;
-        }
-
-        const course = data.course.id(req.params.cid);
-        if(!course){
-            res.status(404).json({message: 'Course Not Found!..'});
-            return;
-        }
-        res.status(200).json(course);
+      res.status(200).json(data);
     });
-}
+  });
+};
 
+const deleteOne = function (req, res) {
+  const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
+  const checkCID = mongoose.Types.ObjectId.isValid(req.params.cid);
 
-const addOne = function(req,res){
-    const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
+  if (!checkSID || !checkCID) {
+    res.status(400).json({ message: "Invalid IDs" });
+    return;
+  }
 
-    if(!checkSID){
-        res.status(400).json({message: 'Invalid ID'});
-        return; 
+  Student.findById(req.params.id).exec(function (err, data) {
+    if (err) {
+      res.status(500).json(err.message);
+      return;
     }
-    if(Object.keys(req.body).length == 0){
-        res.status(400).json({message: 'body data not found'});
-        return; 
+
+    const desiredDoc = data.course.id(req.params.cid);
+
+    if (!desiredDoc) {
+      res.status(404).json({ message: "Course Not Found!" });
+      return;
     }
 
-    Student.findById(req.params.id).exec(function(err,data){
-        if(err){
-            res.status(500).json(err.message);
-            return;
-        }
+    desiredDoc.remove();
+    //if successfully removed
+    data.save(function (deleteErr) {
+      if (deleteErr) {
+        res.status(500).json(deleteErr.message);
+        return;
+      }
 
-        data.course.push(req.body);
-        data.save(function(saveErr){
-            if(saveErr){
-                res.status(500).json(saveErr.message);
-                return;
-            }
-
-            res.status(200).json(data);
-        });
-
-        
+      res.status(200).json(data);
     });
-
-}
-
-const updateOne = function(req,res){
-
-    const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
-    const checkCID = mongoose.Types.ObjectId.isValid(req.params.cid); 
-
-    if(!checkSID || !checkCID){
-        res.status(400).json({message: 'Invalid IDs'});
-        return; 
-    }
-    if(Object.keys(req.body).length == 0){
-        res.status(400).json({message: 'body data not found'});
-        return; 
-    }
-
-    Student.findById(req.params.id).exec(function(err,data){
-        if(err){
-            res.status(500).json(err.message);
-            return;
-        }
-
-        const doc =  data.course.id(req.params.cid);
-        doc.set(req.body);
-
-        data.save(function(saveErr){
-            if(saveErr){
-                res.status(500).json(err.message);
-                return; 
-            }
-
-            res.status(200).json(data);
-        });
-
-    });
-
-}
-
-const deleteOne = function(req,res){
-    const checkSID = mongoose.Types.ObjectId.isValid(req.params.id);
-    const checkCID = mongoose.Types.ObjectId.isValid(req.params.cid); 
-
-    if(!checkSID || !checkCID){
-        res.status(400).json({message: 'Invalid IDs'});
-        return; 
-    }
-
-    Student.findById(req.params.id).exec(function(err,data){
-        if(err){
-            res.status(500).json(err.message);
-            return;
-        }
-
-        const desiredDoc =  data.course.id(req.params.cid);
-
-        if(!desiredDoc){
-            res.status(404).json({message : 'Course Not Found!'});
-            return;
-        }
-
-        desiredDoc.remove();
-        //if successfully removed
-        data.save(function(deleteErr){
-            if(deleteErr){
-                res.status(500).json(deleteErr.message);
-                return;
-            }
-
-            res.status(200).json(data);
-        });
-
-
-    })
-}
+  });
+};
 
 module.exports = {
-    getAll : getAll,
-    getOne : getOne,
-    addOne : addOne,
-    updateOne : updateOne,
-    deleteOne : deleteOne
-}
+  getAll: getAll,
+  getOne: getOne,
+  addOne: addOne,
+  updateOne: updateOne,
+  deleteOne: deleteOne,
+};

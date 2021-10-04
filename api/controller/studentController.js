@@ -53,12 +53,9 @@ const addOne = function(req,res){
 
     const data = {
         name : req.body.name,
-        gpa  : req.body.gpa,
-       /*  course : [{
-            name: req.body.course[0].name,
-            professor : req.body.course[0].professor
-        }] */
+        gpa  : parseFloat(req.body.gpa),
     }
+    
 
     Student.create(data , function(err,result){
         if(err){
